@@ -2,7 +2,7 @@ import 'package:health/health.dart';
 import 'package:flutter/material.dart';
 import 'dart:core';
 
-enum AppState {
+enum UserState {
   DATA_NOT_FETCHED,
   FETCHING_DATA,
   DATA_READY,
@@ -19,7 +19,7 @@ class UserScreen extends StatefulWidget {
 class _UserScreenState extends State<UserScreen> {
   List<HealthDataPoint> _healthDataList = [];
   double _sum = 0.0;
-  AppState _state = AppState.DATA_NOT_FETCHED;
+  UserState _state = UserState.DATA_NOT_FETCHED;
   HealthFactory health = HealthFactory();
 
   @override
@@ -29,7 +29,7 @@ class _UserScreenState extends State<UserScreen> {
 
   Future fetchData() async {
     setState(() {
-      _state = AppState.FETCHING_DATA;
+      _state = UserState.FETCHING_DATA;
     });
     final types = [
       HealthDataType.DISTANCE_WALKING_RUNNING,
@@ -58,21 +58,21 @@ class _UserScreenState extends State<UserScreen> {
       }
       setState(() {
         _state =
-            _healthDataList.isEmpty ? AppState.NO_DATA : AppState.DATA_READY;
+            _healthDataList.isEmpty ? UserState.NO_DATA : UserState.DATA_READY;
       });
     } else {
       setState(() {
-        _state = AppState.DATA_NOT_FETCHED;
+        _state = UserState.DATA_NOT_FETCHED;
       });
     }
   }
 
   Widget _content() {
-    if (_state == AppState.FETCHING_DATA)
+    if (_state == UserState.FETCHING_DATA)
       return _contentFetchingData();
-    else if (_state == AppState.NO_DATA)
+    else if (_state == UserState.NO_DATA)
       return _contentNoData();
-    else if (_state == AppState.DATA_READY)
+    else if (_state == UserState.DATA_READY)
       return _contentDataReady();
     else
       return _contentNotFetched();
