@@ -37,7 +37,9 @@ class _MapScreenState extends State<MapScreen> {
     final snapshot = await FirebaseFirestore.instance
         .collection("location")
         .doc("${FirebaseAuth.instance.currentUser?.email}")
-        .collection("${now.year}年${now.month}月")
+        .collection("${now.year}年")
+        .doc("${now.month}月")
+        .collection("${now.day}日")
         .get();
 
     snapshot.docs.forEach(
@@ -49,8 +51,8 @@ class _MapScreenState extends State<MapScreen> {
         snapshotDocs.add(firestoreobj);
       },
     );
-    snapshotDocs.sort((a, b) => a.occured_at.compareTo(b.occured_at));
-    // var locationList = await LocationDBModel.instance.selectTodaylocations();
+    snapshotDocs.sort((a, b) =>
+        DateTime.parse(a.occured_at).compareTo(DateTime.parse(b.occured_at)));
     setState(() {
       for (var f in snapshotDocs) {
         latlng.add(LatLng(f.latitude, f.longitude));

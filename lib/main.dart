@@ -52,7 +52,9 @@ void callbackDispatcher() {
         await FirebaseFirestore.instance
             .collection('location')
             .doc("${FirebaseAuth.instance.currentUser?.email}")
-            .collection("${now.year}年${now.month}月")
+            .collection("${now.year}年")
+            .doc("${now.month}月")
+            .collection("${now.day}日")
             .add({
           'latitude': double.parse(_locationData.latitude!.toStringAsFixed(7)),
           'longitude':
