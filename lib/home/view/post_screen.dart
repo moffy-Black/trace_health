@@ -1,11 +1,44 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
+import 'package:auth_service/auth_service.dart';
 import 'package:flutter/material.dart';
 
-class PostScreen extends StatelessWidget {
-  PostScreen({Key? key}) : super(key: key);
-  final TextEditingController _weightController = TextEditingController();
+enum PostState {
+  POST_YET,
+  POSTED,
+}
 
+class PostScreen extends StatefulWidget {
+  const PostScreen({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) {
+  State<PostScreen> createState() => _PostScreenState();
+}
+
+class _PostScreenState extends State<PostScreen> {
+  final TextEditingController _weightController = TextEditingController();
+  PostState _state = PostState.POST_YET;
+
+  Widget _content() {
+    if (_state == PostState.POSTED) {
+      return _contentPosted();
+    } else
+      return _contentPostYet();
+  }
+
+  Widget _contentPosted() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        const Text(
+          "本日の入力は済みました",
+          style: TextStyle(fontSize: 30),
+        ),
+      ],
+    );
+  }
+
+  Widget _contentPostYet() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -20,50 +53,38 @@ class PostScreen extends StatelessWidget {
           style: TextStyle(fontSize: 18),
         ),
         const SizedBox(height: 50.0),
-        _PostWeight(weightController: _weightController),
+        SizedBox(
+          width: MediaQuery.of(context).size.width / 2,
+          child: TextField(
+              controller: _weightController,
+              decoration: const InputDecoration(hintText: 'Weight: XX.X (kg)')),
+        ),
         const SizedBox(height: 50.0),
-        _SubmitButton(
-          weight: _weightController,
+        ElevatedButton(
+          onPressed: () async {
+            DateTime now = DateTime.now();
+
+            await FirebaseFirestore.instance
+                .collection('weight')
+                .doc("${FirebaseAuth.instance.currentUser?.email}")
+                .collection("${now.year}年${now.month}月")
+                .add({
+              'weight': double.parse(_weightController.text),
+              'occured_at': DateFormat('yyyy-MM-dd').format(now)
+            });
+            setState(() {
+              _state = PostState.POSTED;
+            });
+          },
+          child: const Text('Save'),
         ),
         const SizedBox(height: 50.0),
       ],
     );
   }
-}
-
-class _PostWeight extends StatelessWidget {
-  const _PostWeight({
-    Key? key,
-    required this.weightController,
-  }) : super(key: key);
-
-  final TextEditingController weightController;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width / 2,
-      child: TextField(
-          controller: weightController,
-          decoration: const InputDecoration(hintText: 'Weight: XX.X (kg)')),
-    );
-  }
-}
-
-class _SubmitButton extends StatelessWidget {
-  const _SubmitButton({
-    Key? key,
-    required this.weight,
-  }) : super(key: key);
-
-  final TextEditingController weight;
-  // final AuthService _authService = FirebaseAuthService();
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () async {},
-      child: const Text('Save'),
-    );
+    return Container(child: _content());
   }
 }

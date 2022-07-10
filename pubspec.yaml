@@ -40,6 +40,10 @@ dependencies:
   firebase_auth: ^3.3.20
   google_maps_flutter: ^2.1.8
   fl_chart: ^0.55.0
+  health: ^4.0.0
+  cloud_firestore: ^3.2.1
+  location: ^4.4.0
+  workmanager: ^0.4.1
 
 dev_dependencies:
   flutter_test:
